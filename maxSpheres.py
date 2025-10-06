@@ -4,7 +4,7 @@ import random
 import numpy as np
 
 # Amount of spheres to be initialized
-amount = 10
+amount = 7
 # Range to randomize the s_radius
 min_radius = 0.1
 max_radius = 2.0
@@ -17,16 +17,14 @@ epsilon = 0.01
 
 # Do the cage
 # also redo the spawn points by checking the collision
-# are the spheres supposed to grow the same amount or do they have their invidual len that they grow?
-# invidual len for each sphere but grow all 0.1 once and then check collision for all and give boolean attribute of TRUE??
-# shrink it backwards? halfen the amount it grows
 
 class Sphere:
-    def __init__(self, radius, pos, len, grow):
+    def __init__(self, radius, pos, len, grow, collision):
         self.radius = radius
         self.pos = pos
         self.len = len
         self.grow = grow
+        self.collision = collision
 
 def phi(d):
     x = 2.0
@@ -86,23 +84,29 @@ def checkCollision(s1, spheres):
                 return (True)
     return (False)
 
-# grow spheres by scale of + 0.1 till it detects collision. When collision is detected
-# divide by 2 the growth and try again, if len is less than 0.001 then stop and make grow = False
+# grow the spheres by the len
+# on the second loop check if collisions happens
+# if collision is happening then move the radius back by len and /2 the len
+# or then the len is smaller than epsilon and we are done growing
 def growSpheres(spheres):
-    grow = True
-    while grow is True:
-        grow = False
+    loop = True
+    while loop is True:
+        loop = False
         for i in range(amount):
             if (spheres[i].grow is True):
-                while (checkCollision(spheres[i], spheres) is True):
+                if (spheres[i].collision is True):
+                    spheres[i].radius -= spheres[i].len
                     spheres[i].len /= 2
+                    spheres[i].collision = False
                     if (spheres[i].len < epsilon):
                         spheres[i].grow = False
-                        break
+                        continue
                 else:
                     spheres[i].radius += spheres[i].len
-                    grow = True
-    return (spheres)
+                    loop = True
+        for i in range(amount):
+            if (spheres[i].grow is True):
+                spheres[i].collision = checkCollision(spheres[i], spheres)
 
 
 # new code down here
@@ -118,7 +122,7 @@ def createSpheres():
     
     spheres = []
     for i in range(amount): #radius, pos, len, grow
-        spheres.append(Sphere(random.uniform(min_radius, max_radius), Vector(scaled_points[i]), 0.1, True))
+        spheres.append(Sphere(random.uniform(min_radius, max_radius), Vector(scaled_points[i]), 0.1, True, False))
             
     return (spheres)
 
