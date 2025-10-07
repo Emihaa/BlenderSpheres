@@ -7,9 +7,10 @@ amount = 7
 # Range to randomize the s_radius
 min_radius = 0.1
 max_radius = 2.0
-# Range to randomize location
-min_loc = -10.0
-max_loc = 15.0
+# Range to randomize location x, y, z
+width = 50
+height = 25
+depth = 25
 # Collection name
 col_name = "spheres"
 epsilon = 0.01
@@ -94,7 +95,7 @@ def generateRandomPoints():
     points = []
 
     for i in range(amount * 3):
-        pos = Vector((random.uniform(min_loc, max_loc), random.uniform(min_loc, max_loc), random.uniform(min_loc, max_loc)))
+        pos = Vector((random.uniform(-width, width), random.uniform(-height, height), random.uniform(-depth, depth)))
         points.append(pos)
     return (points)
 
@@ -113,7 +114,7 @@ def createSpheres():
             True, 
             False )
         spheres.append(s)
-        if (checkCollision(spheres[i], spheres) is False):
+        if (checkCollision(s, spheres) is False):
             s_amount += 1
         else:
             spheres.pop()
@@ -129,8 +130,7 @@ def createBox():
         for obj in col.objects:
             if obj.name == "Box":
                 bpy.data.objects.remove(obj, do_unlink=True)
-        dimension = (abs(min_loc) + max_loc)
-        bpy.ops.mesh.primitive_cube_add(size=2.0, enter_editmode=False, location=(0.0, 0.0, 0.0), rotation=(0.0, 0.0, 0.0), scale=(dimension, dimension, dimension))
+        bpy.ops.mesh.primitive_cube_add(size=2.0, enter_editmode=False, location=(0, 0, 0), rotation=(0.0, 0.0, 0.0), scale=(width, height, depth))
         box = bpy.context.active_object
         box.name = "Box"
         box.display_type = 'WIRE'
