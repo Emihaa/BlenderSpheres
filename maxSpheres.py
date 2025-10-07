@@ -1,7 +1,6 @@
 import bpy
 from mathutils import Vector
 import random
-import numpy as np
 
 # Amount of spheres to be initialized
 amount = 7
@@ -15,8 +14,7 @@ max_loc = 15.0
 col_name = "spheres"
 epsilon = 0.01
 
-# Do the cage
-# also redo the spawn points by checking the collision
+# Do the cage, how do i do cage and how do i check the collision with the cage?
 
 class Sphere:
     def __init__(self, radius, pos, len, grow, collision):
@@ -26,31 +24,13 @@ class Sphere:
         self.grow = grow
         self.collision = collision
 
-def phi(d):
-    x = 2.0
-    for i in range(10):
-        x = (1 + x)**(1/(d+1))
-    return (x)
-
-def generate_points(n, d, seed):
-    g = phi(d)
-    alpha = np.array([pow(1/g, j+1) for j in range(d)])
-    z = np.zeros((n, d))
-    for i in range(n):
-        z[i] = (seed + alpha*(i+1)) % 1
-    return (z)
-
 # Check if the collection exist if not create it, also delete possible spheres if any
 def createCollection():
     if col_name in bpy.data.collections:
         print(f" correct collection found:")
         sphe_col = bpy.data.collections[col_name]
-        array = [obj for obj in sphe_col.objects]
-        for i in range(len(array)):
-            s1 = array[i]
-            bpy.data.objects.remove(s1, do_unlink=True) 
-            #TODO: there might need to be a check that collection exists but there are no spheres
-            #so that i dont delete things that dont exist
+        for obj in sphe_col.objects:
+            bpy.data.objects.remove(obj, do_unlink=True) 
     else:
         print(f" creating a new collection:")
         sphe_col = bpy.data.collections.new(col_name)
@@ -108,26 +88,44 @@ def growSpheres(spheres):
             if (spheres[i].grow is True):
                 spheres[i].collision = checkCollision(spheres[i], spheres)
 
+# generate 3 times more than the sphere amount, randomized positions within the given boundaries
+# also gives as end point of how many tries we will give this code to generate random pos
+def generateRandomPoints():
+    points = []
 
-# new code down here
+    for i in range(amount * 3):
+        pos = Vector((random.uniform(min_loc, max_loc), random.uniform(min_loc, max_loc), random.uniform(min_loc, max_loc)))
+        points.append(pos)
+    return (points)
+
+
 # returns the sphere classes with the randomized radius and pos
+# or returns empthy list
 def createSpheres():
-    # Generate quasi-random points
-    points = generate_points(amount, 3, seed = random.random())
-    
-    # Scale points to world space, leaving max_radius buffer
-    world_min = min_loc + max_radius
-    world_max = max_loc - max_radius
-    scaled_points = world_min + points * (world_max - world_min)
-    
+    points = generateRandomPoints()
+
     spheres = []
-    for i in range(amount): #radius, pos, len, grow
-        spheres.append(Sphere(random.uniform(min_radius, max_radius), Vector(scaled_points[i]), 0.1, True, False))
-            
-    return (spheres)
+    s_amount = 0
+    for i in range(amount * 3):
+        s = Sphere ( #radius, pos, len, grow
+            random.uniform(min_radius, max_radius), 
+            Vector(points[i]), 0.1, 
+            True, 
+            False )
+        spheres.append(s)
+        if (checkCollision(spheres[i], spheres) is False):
+            s_amount += 1
+        else:
+            spheres.pop()
+        if (s_amount == amount):
+            return (spheres) 
+    return ()
 
 def main():
     spheres = createSpheres()
+    if not (spheres):
+        print(f"No valid positions for spheres, check the limitations")
+        return 
     growSpheres(spheres)
     spawnSpheres(spheres)
     
