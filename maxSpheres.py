@@ -8,7 +8,7 @@ amount = 7
 min_radius = 0.1
 max_radius = 2.0
 # Range to randomize location
-min_loc = -25.0
+min_loc = -10.0
 max_loc = 15.0
 # Collection name
 col_name = "spheres"
@@ -51,7 +51,7 @@ def spawnSpheres(spheres):
         sphere = bpy.context.active_object
         shadeSmooth()
         if (sphe_col not in sphere.users_collection):
-            sphe_col.objects.link(sphere)   
+            sphe_col.objects.link(sphere)
 
 # Check the collision by calculating the distance between the spheres and minuses the radiuses
 # if ANY collision happens the function will stop and return True
@@ -121,6 +121,22 @@ def createSpheres():
             return (spheres) 
     return ()
 
+# Should now create a box in wire displaymode to show case the boundaries
+def createBox():
+    col_name = "Collection"
+    if col_name in bpy.data.collections:
+        col = bpy.data.collections[col_name]
+        for obj in col.objects:
+            if obj.name == "Box":
+                bpy.data.objects.remove(obj, do_unlink=True)
+        dimension = (abs(min_loc) + max_loc)
+        bpy.ops.mesh.primitive_cube_add(size=2.0, enter_editmode=False, location=(0.0, 0.0, 0.0), rotation=(0.0, 0.0, 0.0), scale=(dimension, dimension, dimension))
+        box = bpy.context.active_object
+        box.name = "Box"
+        box.display_type = 'WIRE'
+        box = bpy.context.active_object
+        col.objects.link(box)
+
 def main():
     spheres = createSpheres()
     if not (spheres):
@@ -128,6 +144,7 @@ def main():
         return 
     growSpheres(spheres)
     spawnSpheres(spheres)
+    createBox()
     
 
 if __name__ == "__main__":
