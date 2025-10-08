@@ -15,7 +15,8 @@ depth = 25
 col_name = "spheres"
 epsilon = 0.01
 
-# Do the cage, how do i do cage and how do i check the collision with the cage?
+# Cage is done, spheres spawn inside the cage but scaling doesnt take account the sphere boundaries
+# also currently cage will get linked to "Collection" collection and doesnt check if it doesn't exist
 
 class Sphere:
     def __init__(self, radius, pos, len, grow, collision):
