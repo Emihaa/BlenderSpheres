@@ -144,7 +144,7 @@ def main():
         print(f"No valid positions for spheres, check the limitations")
         return 
     growSpheres(spheres)
-    spawnSpheres(spheres)
+    #spawnSpheres(spheres)
     createBox()
     
 
